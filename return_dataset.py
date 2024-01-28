@@ -1,5 +1,6 @@
 import os
 from datasets import Dataset, DatasetDict, ClassLabel
+from PIL import Image
 
 class_labels = ["Benign", "Malignant"]
 label = ClassLabel(names=class_labels)
@@ -10,7 +11,10 @@ def read_images_from_folder(folder_path):
         for file in files:
             if file.endswith(".png"):
                 images.append(os.path.join(root, file))
+
+
     return images
+    # return [Image.open(x).convert("RGB") for x in images], images
 
 import re
 def super_split(input_string, splitters):
@@ -40,14 +44,15 @@ def organize_dataset(root_path):
 
     for fold in range(1, 6):
         for split in ["train", "test"]:
-            dataset[split] = {"image_paths": [], "prelabels": [], "details": []}
+            dataset[split] = {"image": [], "prelabels": [], "details": []}
             for magnification in ["40X", "100X", "200X", "400X"]:
                 folder_path = os.path.join(root_path, f"fold{fold}", split, magnification)
                 # print(folder_path)
-                images = read_images_from_folder(folder_path)
-                dataset[split]["image_paths"].extend(images)
+                # images, image_paths = read_images_from_folder(folder_path)
+                image_paths = read_images_from_folder(folder_path)
+                dataset[split]["image"].extend(image_paths)
 
-                details, labels = zip(*[parse_filename(os.path.basename(image)) for image in images])
+                details, labels = zip(*[parse_filename(os.path.basename(image_path)) for image_path in image_paths])
                 # dataset[split]["labels"].extend(labels)
                 dataset[split]["prelabels"].extend(labels)
                 dataset[split]["details"].extend(details)
@@ -70,7 +75,7 @@ def main():
     print(hf_dataset)
     print(hf_dataset["train"].features)
     print(hf_dataset["train"]["labels"][:5])
-    print(hf_dataset["train"]["image_paths"][:5])
+    print(hf_dataset["train"]["image"][:5])
     hf_dataset.save_to_disk("./breakhis.ds")
 
 if __name__ == "__main__":

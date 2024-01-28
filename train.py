@@ -1,5 +1,5 @@
 from transformers import ViTImageProcessor, ViTForImageClassification, ViTConfig
-from datasets import load_dataset, load_metric
+from datasets import load_dataset
 import evaluate
 from torch.utils.data import DataLoader
 from torch.optim import Adam
@@ -17,9 +17,8 @@ args = parser.parse_args()
 epochs, lr = args.epochs, args.lr
 batch_size = args.batch_size
 
-# Load the Falah/Alzheimer_MRI dataset
 dataset = load_dataset('./breakhis.ds')
-metric = load_metric("accuracy")
+metric = evaluate.load("accuracy")
 
 # im = dataset["train"][0]["image"]
 # print(dataset["train"][0]["label"])
@@ -32,6 +31,7 @@ metric = load_metric("accuracy")
 vitprocessor = ViTImageProcessor.from_pretrained('google/vit-base-patch16-224')
 #define callback to data collator
 def transform(data):
+    print(data)
     batch = vitprocessor([PIL.Image.open(x).convert("RGB") for x in data["image_paths"]], return_tensors="pt")
     batch["labels"] = data["label"]
     return batch
@@ -49,12 +49,10 @@ training_dataloader = DataLoader(training_set, collate_fn=data_collator, batch_s
 
 test_dataloader = DataLoader(test_set, collate_fn=data_collator, batch_size=batch_size)
 
-
 ## training
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-
-model = ViTForImageClassification.from_pretrained('google/vit-base-patch16-224', ignore_mismatched_sizes=True, num_labels=4)
+model = ViTForImageClassification.from_pretrained('google/vit-base-patch16-224', ignore_mismatched_sizes=True, num_labels=2)
 model.to(device)
 optimizer = Adam(model.parameters(), lr=lr)
 
