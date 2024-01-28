@@ -17,7 +17,7 @@ args = parser.parse_args()
 epochs, lr = args.epochs, args.lr
 batch_size = args.batch_size
 
-dataset = load_dataset('./breakhis.ds')
+dataset = load_dataset('./breakhis.hf')
 metric = evaluate.load("accuracy")
 
 # im = dataset["train"][0]["image"]

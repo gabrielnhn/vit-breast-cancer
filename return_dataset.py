@@ -76,7 +76,7 @@ def main():
     print(hf_dataset["train"].features)
     print(hf_dataset["train"]["labels"][:5])
     print(hf_dataset["train"]["image"][:5])
-    hf_dataset.save_to_disk("./breakhis.ds")
+    hf_dataset.save_to_disk("./breakhis.hf")
 
 if __name__ == "__main__":
     main()
