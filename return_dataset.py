@@ -63,16 +63,9 @@ def main():
     root_path = "folds"
     dataset = organize_dataset(root_path)
 
-    features = {
-        "image_paths": "string",
-        "labels": label,
-        # "details": "dict"
-    }
-
     dataset["train"] = Dataset.from_dict(dataset["train"])
     dataset["test"] = Dataset.from_dict(dataset["test"])
     hf_dataset = DatasetDict(dataset)
-
 
     print(hf_dataset)
     print(hf_dataset["train"].features)

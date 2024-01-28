@@ -7,7 +7,6 @@ import torch
 import argparse
 import PIL
 
-
 # MODEL ARGUMENTS
 parser = argparse.ArgumentParser(description='Breast cancer classification.')
 parser.add_argument('--epochs', default=10, type=int)
@@ -19,7 +18,7 @@ epochs, lr = args.epochs, args.lr
 batch_size = args.batch_size
 
 # Load the Falah/Alzheimer_MRI dataset
-dataset = load_dataset('Falah/Alzheimer_MRI')
+dataset = load_dataset('./breakhis.ds')
 metric = load_metric("accuracy")
 
 # im = dataset["train"][0]["image"]
@@ -33,7 +32,7 @@ metric = load_metric("accuracy")
 vitprocessor = ViTImageProcessor.from_pretrained('google/vit-base-patch16-224')
 #define callback to data collator
 def transform(data):
-    batch = vitprocessor([x.convert("RGB") for x in data["image"]], return_tensors="pt")
+    batch = vitprocessor([PIL.Image.open(x).convert("RGB") for x in data["image_paths"]], return_tensors="pt")
     batch["labels"] = data["label"]
     return batch
 
