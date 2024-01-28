@@ -1,5 +1,5 @@
 import os
-from datasets import Dataset, DatasetDict, ClassLabel
+from datasets import Dataset, DatasetDict, ClassLabel, Features, Value
 from PIL import Image
 
 class_labels = ["Benign", "Malignant"]
@@ -68,8 +68,37 @@ def main():
     root_path = "folds"
     dataset = organize_dataset(root_path)
 
-    dataset["train"] = Dataset.from_dict(dataset["train"])
-    dataset["test"] = Dataset.from_dict(dataset["test"])
+    # features = Features({
+    #     'image': Value(dtype='string', id=None),
+    #     'details': {
+    #         'BIOPSY_PROCEDURE': Value(dtype='string', id=None),
+    #         'MAGNIFICATION': Value(dtype='string', id=None),
+    #         'SEQ': Value(dtype='string', id=None),
+    #         'SLIDE_ID': Value(dtype='string', id=None),
+    #         'TUMOR_CLASS': Value(dtype='string', id=None),
+    #         'TUMOR_TYPE': Value(dtype='string', id=None),
+    #         'YEAR': Value(dtype='string', id=None)
+    #         },
+    #     'labels': Value(dtype='int64', id=None)}
+    # ),
+    features = Features({
+        'image': Value(dtype='string'),
+        'details': {
+            'BIOPSY_PROCEDURE': Value(dtype='string'),
+            'MAGNIFICATION': Value(dtype='string'),
+            'SEQ': Value(dtype='string'),
+            'SLIDE_ID': Value(dtype='string'),
+            'TUMOR_CLASS': Value(dtype='string'),
+            'TUMOR_TYPE': Value(dtype='string'),
+            'YEAR': Value(dtype='string'),
+        },
+        'labels': ClassLabel(names=class_labels)
+    })
+
+    dataset["train"] = Dataset.from_dict(dataset["train"], features=features)
+    dataset["test"] = Dataset.from_dict(dataset["test"], features=features)
+
+
     hf_dataset = DatasetDict(dataset)
 
     print(hf_dataset)

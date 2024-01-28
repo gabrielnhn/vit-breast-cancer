@@ -1,5 +1,5 @@
 from transformers import ViTImageProcessor, ViTForImageClassification, ViTConfig
-from datasets import load_dataset
+from datasets import load_dataset, load_from_disk
 import evaluate
 from torch.utils.data import DataLoader
 from torch.optim import Adam
@@ -17,7 +17,17 @@ args = parser.parse_args()
 epochs, lr = args.epochs, args.lr
 batch_size = args.batch_size
 
-dataset = load_dataset('./breakhis.hf')
+# dataset = load_dataset('./breakhis.hf', trust_remote_code=True, split="train")
+dataset = load_from_disk('./breakhis.hf')
+
+print()
+print(dataset)
+print(dataset["train"].features)
+# print(dataset.features)
+print()
+print()
+
+
 metric = evaluate.load("accuracy")
 
 # im = dataset["train"][0]["image"]
@@ -31,22 +41,22 @@ metric = evaluate.load("accuracy")
 vitprocessor = ViTImageProcessor.from_pretrained('google/vit-base-patch16-224')
 #define callback to data collator
 def transform(data):
-    print(data)
-    batch = vitprocessor([PIL.Image.open(x).convert("RGB") for x in data["image_paths"]], return_tensors="pt")
-    batch["labels"] = data["label"]
+    # print(data)
+    batch = vitprocessor([PIL.Image.open(x).convert("RGB") for x in data["image"]], return_tensors="pt")
+
+    batch["labels"] = data["labels"]
     return batch
 
 def data_collator(unprocessed_batch):
     return {
         "pixel_values": torch.stack([x["pixel_values"] for x in unprocessed_batch]),
         "labels": torch.tensor([x["labels"] for x in unprocessed_batch])
-    } 
+    }
 
 processed_dataset = dataset.with_transform(transform)
 training_set = processed_dataset["train"]
 test_set = processed_dataset["test"]
 training_dataloader = DataLoader(training_set, collate_fn=data_collator, batch_size=batch_size)
-
 test_dataloader = DataLoader(test_set, collate_fn=data_collator, batch_size=batch_size)
 
 ## training
