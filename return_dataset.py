@@ -55,14 +55,12 @@ def organize_dataset(root_path):
            
             dataset[split]["labels"] = label.str2int(dataset[split]["prelabels"])
             dataset[split].pop("prelabels")
-
-
             
 
     return dataset
 
 def main():
-    root_path = "."
+    root_path = "folds"
     dataset = organize_dataset(root_path)
 
     features = {
@@ -80,7 +78,7 @@ def main():
     print(hf_dataset["train"].features)
     print(hf_dataset["train"]["labels"][:5])
     print(hf_dataset["train"]["image_paths"][:5])
-    # hf_dataset.save_to_disk("/path/to/save/hf_dataset")
+    hf_dataset.save_to_disk("./breakhis.ds")
 
 if __name__ == "__main__":
     main()
